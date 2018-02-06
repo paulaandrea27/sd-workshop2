@@ -20,15 +20,18 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     node2.vm.provider :virtualbox do |vb|
       vb.customize ["modifyvm", :id, "--memory", "1024","--cpus", "1", "--name", "centos_node2" ]
     end
-    server.vm.provision "shell", inline: <<-SHELL
-      sudo yum install screen vim -y
-      echo '[sensu]
-name=sensu
-baseurl=https://sensu.global.ssl.fastly.net/yum/$releasever/$basearch/
-gpgcheck=0
-enabled=1' | sudo tee /etc/yum.repos.d/sensu.repo
-      su -c 'rpm -Uvh http://www.rabbitmq.com/releases/rabbitmq-server/v3.6.9/rabbitmq-server-3.6.9-1.el7.noarch.rpm'
-      service rabbitmq-server start
+    node2.vm.provision "shell", inline: <<-SHELL
+      sudo yum install epel-release
+      cd ~
+      wget http://packages.erlang-solutions.com/erlang-solutions-1.0-1.noarch.rpm
+      sudo rpm -Uvh erlang-solutions-1.0-1.noarch.rpm
+      sudo yum install erlang
+      cd ~
+      wget https://www.rabbitmq.com/releases/rabbitmq-server/v3.6.1/rabbitmq-server-3.6.1-1.noarch.rpm
+      sudo rpm --import https://www.rabbitmq.com/rabbitmq-signing-key-public.asc
+      sudo yum install rabbitmq-server-3.6.1-1.noarch.rpm
+      sudo systemctl start rabbitmq-server.service
+      sudo systemctl enable rabbitmq-server.service
       sudo rabbitmqctl add_vhost /sensu
       sudo rabbitmqctl add_user sensu password
       sudo rabbitmqctl set_permissions -p /sensu sensu ".*" ".*" ".*"

@@ -9,4 +9,6 @@ enabled=1' | sudo tee /etc/yum.repos.d/sensu.repo
 #yum install sensu -y
 #sensu-install -p sensu-plugin
 yum install httpd -y
+cd /vagrant/
+cp -r sensu/ /etc/
 service sensu-client start

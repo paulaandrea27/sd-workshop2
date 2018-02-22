@@ -11,4 +11,5 @@ enabled=1' | sudo tee /etc/yum.repos.d/sensu.repo
 yum install httpd -y
 cd /vagrant/
 cp -r sensu/ /etc/
-service sensu-client start
+sudo systemctl restart sensu-client
+sudo systemctl restart httpd
